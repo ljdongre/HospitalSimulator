@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{93D2CDE3-E89D-4B28-90FE-DC5762662D42}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ResourceManager</RootNamespace>
+    <AssemblyName>ResourceManager</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AppointmentMap.cs" />
+    <Compile Include="Class1.cs" />
+    <Compile Include="ConsultationRecord.cs" />
+    <Compile Include="Doctor.cs" />
+    <Compile Include="DoctorResourceRule.cs" />
+    <Compile Include="IResource.cs" />
+    <Compile Include="IResourceRule.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resource.cs" />
+    <Compile Include="ResourceAllocator.cs" />
+    <Compile Include="ResourceAllocatorResult.cs" />
+    <Compile Include="TreatmentMachine.cs" />
+    <Compile Include="TreatmentMachineCapabilities.cs" />
+    <Compile Include="TreatmentResourceRule.cs" />
+    <Compile Include="TreatmentRoom.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HospitalSimulatorService.Contract\HospitalSimulatorService.Contract.csproj">
+      <Project>{83a7ec21-fb91-4569-a08b-5f5fab765365}</Project>
+      <Name>HospitalSimulatorService.Contract</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SimpleLoggerContract\SimpleLoggerContract.csproj">
+      <Project>{c4b790a9-2d07-4024-a54c-b52fe0fdaae9}</Project>
+      <Name>SimpleLoggerContract</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SimpleLogger\SimpleLogger.csproj">
+      <Project>{073a1208-27e2-4b38-b7de-ab8f298b975b}</Project>
+      <Name>SimpleLogger</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ResourceData\Doctors.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ResourceData\TreatmentMachines.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ResourceData\TreatmentRooms.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
