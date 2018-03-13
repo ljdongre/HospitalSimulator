@@ -29,7 +29,6 @@ namespace HospitalSimulatorService
         /// </summary>
         public void Dispose()
         {
-            //resourceAllocator.Dispose();
         }
 
         public bool IsAlive()
@@ -71,8 +70,10 @@ namespace HospitalSimulatorService
                 new ConcurrentBag<ConsultationRecord>();
         public IEnumerable<Consultation> ScheduledConsultations()
         {
-            return _consultations.ToArray().Select(c =>
-            new Consultation(c.Patient.Name, c.TreatmentRoom.ID, c.Doctor.ID, c.DateRegistered, c.ConsulatationDate)).ToList();
+            return (_consultations.ToArray().Select(c =>
+            new Consultation(c.Patient.Name, c.TreatmentRoom.ID, c.Doctor.ID, c.DateRegistered, c.ConsulatationDate))
+            .OrderBy(c => c.ConsulationDate)
+            .ToList());
         }
 
 

@@ -3,6 +3,8 @@ using HospitalSimulatorService.Contract.Proxy;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,18 +26,23 @@ namespace HospitalSimulatorClient
 
         static void GetScheduledConsultations()
         {
+            GetScheduledConsultations(null);
+        }
+
+        static void GetScheduledConsultations(StreamWriter logFile)
+        {
             HospitalSimulatorProxy proxy = null;
             try
             {
                 proxy = new HospitalSimulatorProxy();
                 var consulations = proxy.ScheduledConsultations();
-                Console.WriteLine("Consulations ...");
+                WriteLine("Consulations ...", logFile);
                 foreach (var c in consulations)
                 {
-                    Console.WriteLine("Scheduled {0}: with '{1}' at '{2}' on '{3}'",
-                        c.Patient, c.Doctor, c.TreatmentRoom, c.ConsulationDate);
+                    WriteLine(string.Format("Scheduled {0}: with '{1}' at '{2}' on '{3}'",
+                        c.Patient, c.Doctor, c.TreatmentRoom, c.ConsulationDate), logFile);
                 }
-                Console.WriteLine();
+                WriteLine(string.Empty, logFile);
 
             }
             finally
@@ -46,7 +53,7 @@ namespace HospitalSimulatorClient
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Erroe [{0}] Executing 'GetScheduledConsultations'", e);
+                    WriteLine(string.Format("Erroe [{0}] Executing 'GetScheduledConsultations'", e), logFile);
                     proxy.Abort();
                 }
             }
@@ -54,16 +61,20 @@ namespace HospitalSimulatorClient
 
         static void GetRegisteredPatients()
         {
+            GetRegisteredPatients(null);
+        }
+        static void GetRegisteredPatients(StreamWriter logFile)
+        {
             HospitalSimulatorProxy proxy = null;
             try
             {
                 proxy = new HospitalSimulatorProxy();
                 var patients = proxy.RegisteredPatients();
-                Console.WriteLine("Registered Patient List...");
+                WriteLine("Registered Patient List...", logFile);
 
                 foreach (var p in patients)
                 {
-                    Console.WriteLine("{0}", p.Name);
+                    WriteLine(string.Format("{0}", p.Name), logFile);
                 }
                 Console.WriteLine();
             }
@@ -75,7 +86,7 @@ namespace HospitalSimulatorClient
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Erroe [{0}] Executing 'GetRegisteredPatients'", e);
+                    WriteLine(string.Format("Erroe [{0}] Executing 'GetRegisteredPatients'", e), logFile);
                     proxy.Abort();
                 }
             }
@@ -148,10 +159,10 @@ namespace HospitalSimulatorClient
         private static ConcurrentDictionary<string, string> patientNames = 
             new ConcurrentDictionary<string, string>();
 
-        private static void RunTask(int id, CancellationToken cancelToken)
+        private static void RunTask(int id, StreamWriter logFile, CancellationToken cancelToken)
         {
             ss.Release();
-            WriteLine(string.Format("Starting task ID: {0}", id));
+            WriteLine(string.Format("Starting task ID: {0}", id), logFile);
             Thread.Sleep(1000);
 
             var optionRandom = new Random();
@@ -163,7 +174,7 @@ namespace HospitalSimulatorClient
             {
                 if (cancelToken.IsCancellationRequested)
                 {
-                    WriteLine(string.Format("Task [{0}] cancelled", id));
+                    WriteLine(string.Format("Task [{0}] cancelled", id), logFile);
                     break;
                 }
                 var option = optionRandom.Next(1, 5);
@@ -183,7 +194,7 @@ namespace HospitalSimulatorClient
                             id * j, id * j + 1), pc, ct);
                         patientNames.TryAdd(p.Name, p.Name);
                         Program.RegisterPatient(p);
-                        WriteLine(string.Format("Initiated Registration for Patient '{0}'", p.Name));
+                        WriteLine(string.Format("Initiated Registration for Patient '{0}'", p.Name), logFile);
                         break;
                     case 2:
                         var names = patientNames.ToList();
@@ -198,54 +209,79 @@ namespace HospitalSimulatorClient
                         if (!result.Item1)
                         {
                             WriteLine(string.Format("Failed to Register patient: '{0}' will check later",
-                                   names[nameIndex].Key));
+                                   names[nameIndex].Key), logFile);
                         }
                         
                         break;
                     case 3:
-                        Program.GetRegisteredPatients();
+                        Program.GetRegisteredPatients(logFile);
                         break;
                     case 4:
-                        Program.GetScheduledConsultations();
+                        Program.GetScheduledConsultations(logFile);
                         break;
                     default:
                         break;
                 }
             }
-            WriteLine(string.Format("Task [{0}] End", id));
+            WriteLine(string.Format("Task [{0}] End", id), logFile);
         }
 
         private static void StressTest()
         {
             var cancelToken = new CancellationTokenSource();
 
+            const string logFileName = "StressTestLog.txt";
+            const string logFileSearchPattern = "StressTestLog_";
+
+            if (File.Exists(logFileName))
+            {
+                var oldLogFiles = Directory.GetFiles(".", logFileSearchPattern + "*", SearchOption.TopDirectoryOnly)
+                    .Select(f => int.Parse(Path.GetFileNameWithoutExtension(f).Split('_')[1])).ToList();
+
+                var currentFileIndex = oldLogFiles.Any() ? oldLogFiles.Max() + 1 : 1;
+
+                File.Move(logFileName, logFileSearchPattern + currentFileIndex + ".txt");
+            }
+
+            var logFile = new StreamWriter(logFileName);
+
             for(int i =1; i < noOfTasks; i++)
             {
                 int k = i;
-                tasks.Add(Task.Factory.StartNew(() => RunTask(k, cancelToken.Token), cancelToken.Token));
+                tasks.Add(Task.Factory.StartNew(() => RunTask(k, logFile, cancelToken.Token), cancelToken.Token));
             }
 
             ss.Wait();
-            WriteLine("Waiting for all tasks to end ...");
+            WriteLine("Waiting for all tasks to end ...", logFile);
             Task.WaitAll(tasks.ToArray());
-            WriteLine("All tasks have finished .. See the result of registration requests...");
+            WriteLine("All tasks have finished .. See the result of registration requests...", logFile);
             var names = patientNames.ToList();
             foreach(var name in names)
             {
                 var result = Program.IsRegistrationSuccessful(name.Key);
                 if (result.Item1)
                     WriteLine(string.Format("Patient successfully Registered: '{0}'",
-                                   name.Key));
+                                   name.Key), logFile);
                 else 
                     WriteLine(string.Format("Failed to Register patient: '{0}', seems like registration takes time",
-                                   name.Key));
+                                   name.Key), logFile);
             }
-            
+            WriteLine("------------------Aggregate Consultations For the Run (Start)---------------------");
+            Program.GetScheduledConsultations(logFile);
+            WriteLine("------------------Aggregate Consultations For the Run (End)---------------------");
+            logFile.Flush();
+            logFile.Close();
         }
 
 
         private static void Main()
         {
+            if (!Process.GetProcessesByName("HospitalSimulator.Host").Any())
+            {
+                Console.WriteLine("server process 'HospitalSimulator.Host.exe' is not running. Do start the same, before starting the client");
+                Environment.Exit(-1);
+            }
+
             var exit = false;
 
             while (!exit)
@@ -366,11 +402,12 @@ namespace HospitalSimulatorClient
         }
 
         static object consoleLock = new object();
-        static void WriteLine(string msg)
+        static void WriteLine(string msg, StreamWriter logstream = null)
         {
             lock (consoleLock)
             {
                 Console.WriteLine(msg);
+                if (logstream != null) logstream.WriteLine(msg);
             }
         }
     }

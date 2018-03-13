@@ -41,7 +41,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppointmentMap.cs" />
-    <Compile Include="Class1.cs" />
     <Compile Include="ConsultationRecord.cs" />
     <Compile Include="Doctor.cs" />
     <Compile Include="DoctorResourceRule.cs" />

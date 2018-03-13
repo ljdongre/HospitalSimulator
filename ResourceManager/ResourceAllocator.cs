@@ -36,6 +36,9 @@ namespace ResourceManager
 
         public ResourceAllocator()
         {
+            SimpleLogger.SimpleLogger.Instance.Log(SimpleLoggerContract.LogLevel.Info,
+                           string.Format("ResourceAllocator: Created "));
+
             _allocateResourceTask = Task.Factory.StartNew(() => ReserveResources());
             Cancel = new CancellationTokenSource();
         }
@@ -161,7 +164,10 @@ namespace ResourceManager
                 Cancel.Cancel();
                 _allocateResourceTask.Wait();
                 _allocateResourceTask = null;
-            }                
+            }
+
+            SimpleLogger.SimpleLogger.Instance.Log(SimpleLoggerContract.LogLevel.Info,
+                string.Format("ResourceAllocator: Disposed "));
         }
 
     }

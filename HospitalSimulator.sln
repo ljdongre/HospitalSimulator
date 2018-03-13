@@ -25,6 +25,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{20DD44
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{6B7CA633-25D0-421E-A2A5-5DE416A4AD26}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildAndInstructions", "BuildAndInstructions", "{89EC8D4A-7B41-40C5-BEA4-4347CA6637B1}"
+	ProjectSection(SolutionItems) = preProject
+		Build.bat = Build.bat
+		Readme.md = Readme.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
