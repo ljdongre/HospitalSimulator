@@ -24,5 +24,13 @@ namespace HospitalSimulatorService.Contract.Data
             }
             PatientConditionTopography = topography;
         }
+
+        public override string ToString()
+        {
+            return string.Format("Name: '{0}', {1}{2}",
+                Name, Condition.ToString(),
+                PatientConditionTopography == ConditionTopography.None ?
+                    string.Empty : string.Format(":{0}", PatientConditionTopography.ToString()));
+        }
     }
 }

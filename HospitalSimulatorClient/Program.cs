@@ -74,7 +74,7 @@ namespace HospitalSimulatorClient
 
                 foreach (var p in patients)
                 {
-                    WriteLine(string.Format("{0}", p.Name), logFile);
+                    WriteLine(string.Format("{0}", p), logFile);
                 }
                 Console.WriteLine();
             }
@@ -185,16 +185,22 @@ namespace HospitalSimulatorClient
                         PatientCondition pc = PatientCondition.Flu;
                         if (cr % 2 == 0)
                             pc = PatientCondition.Cancer;
-                        var t = topographyRandom.Next(1, 29) % topographyRandom.Next(1, 29);
-                        ConditionTopography ct = ConditionTopography.HeadAndNeck;
-                        if (t % 3 == 0)
-                            ct = ConditionTopography.Breast;
 
+                        ConditionTopography ct = ConditionTopography.None;
+                        
+                        if (pc == PatientCondition.Cancer)
+                        {
+                            var t = topographyRandom.Next(1, 29) % topographyRandom.Next(1, 29);
+                            ct = ConditionTopography.HeadAndNeck;
+                            if (t % 3 == 0)
+                                ct = ConditionTopography.Breast;
+                        }
+  
                         var p = new Patient(string.Format("Test_{0} Patient_{1}",
                             id * j, id * j + 1), pc, ct);
                         patientNames.TryAdd(p.Name, p.Name);
                         Program.RegisterPatient(p);
-                        WriteLine(string.Format("Initiated Registration for Patient '{0}'", p.Name), logFile);
+                        WriteLine(string.Format("Initiated Registration for Patient '{0}'", p), logFile);
                         break;
                     case 2:
                         var names = patientNames.ToList();
@@ -266,9 +272,9 @@ namespace HospitalSimulatorClient
                     WriteLine(string.Format("Failed to Register patient: '{0}', seems like registration takes time",
                                    name.Key), logFile);
             }
-            WriteLine("------------------Aggregate Consultations For the Run (Start)---------------------");
+            WriteLine("------------------Aggregate Consultations For the Run (Start)---------------------", logFile);
             Program.GetScheduledConsultations(logFile);
-            WriteLine("------------------Aggregate Consultations For the Run (End)---------------------");
+            WriteLine("------------------Aggregate Consultations For the Run (End)---------------------", logFile);
             logFile.Flush();
             logFile.Close();
         }

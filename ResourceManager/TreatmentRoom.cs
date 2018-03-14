@@ -36,5 +36,11 @@ namespace ResourceManager
             }
         }
 
+        public override string ToString()
+        {
+            return String.Format("Room: {0}, Machine: {1}{2}", 
+                ID, HasMachine ? Machine.ID : string.Empty, 
+                HasMachine ? HasAdvancedCapabilities ? ": Advanced" : ": Simple" : string.Empty);
+        }
     }
 }
