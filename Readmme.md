@@ -30,7 +30,7 @@
 		* 3: Allows one to get the registered patients list.
 		* 4: Allows one to get the scheduled consultations list
 		* 5: Allows one to stress test the application;
-			* As part of stress testing, clinet will initiate 10 threads. In each of these threads, one of the above mentioned commands will be randomly executed wit randomised data.
+			* As part of stress testing, client will initiate 10 threads. In each of these threads, one of the above mentioned commands will be randomly executed with randomised data.
 			* The system logs the interaction to a file available in the local folder.
 			* At present one can review this file to identify issues.
 
@@ -55,7 +55,7 @@ For details refer to code available in **HospitalSimulatorService.Contract** sub
 #Design
 
 ## Resource management
-Each Service managed by service implements IResource interface. This interface provides the following functionality:
+Each resource managed by service implements IResource interface. This interface provides the following functionality:
 
 * Query for a available date range
 * Reserve a date
@@ -68,13 +68,13 @@ System defines the following resources.
 * Doctor
 * Treatment Room
 
-Each resource caries with its its own schedule.
+Each resource stores its own schedule as appointment map. An appointment map is 24 byte storage allowing one to schedule appointments 6 month in advance. Each byte is mapped to a week with appointments scheduled from Monday to Friday. The week is mapped to the byte from MSB (most significant Bit) to LST (least significant bit). Each byte at preent leaves off 3 bits. Thus the byte array is initiatlized with byte value 0x& and uses Monday mask as 0x80.
 
 At present resources are embedded in the code. But, one could read them from a file or a any other persistence source.
 
 ## Resource Allocation
-Resource Allocation is handled by **ResourceAllocator**. This is at present implemented as an active object and static to the service. The main thread process the requests posted to its queue. At present the queue is plain FIFO and does not implement any priority scheme. The requests are then processed to identify valid resources identified by its rules. Each Resource has an associated resource rule, which decides its suitability based on the patient condition. The rule logic is embedded in the code and could be isolated to a rule based system with its own rule DSL.
-The identified resources are the queried for their availability range which is then used to create the actual schedule date.
+Resource Allocation is handled by **ResourceAllocator**. This is at present implemented as an active object and static to the service. The main thread process the requests posted to its queue. At present the queue is plain FIFO and does not implement any priority scheme. The requests are then processed to identify valid resources defined  by its rules. Each Resource has an associated resource rule, which decides its suitability based on the patient condition. The rule logic is embedded in the code and could be isolated to a rule based system with its own rule DSL.
+The identified resources are then queried for their availability range which is then used to create the actual schedule date.
 
 # Additional work that was not implemented
 
